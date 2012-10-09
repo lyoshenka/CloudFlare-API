@@ -197,6 +197,12 @@ class cloudflare_api {
         $data['zones'] = $zones;
         return $this->http_post($data);
     }
+
+    public function zone_init($zone) {
+        $data['a']    = 'zone_init';
+        $data['z']    = $zone;
+        return $this->http_post($data);
+    }
     
     public function del_dns($zone, $name) {
         $data['a']    = 'rec_del';
