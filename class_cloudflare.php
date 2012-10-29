@@ -13,6 +13,15 @@ class cloudflare_api {
     
     //Timeout for the API requests in seconds
     const TIMEOUT = 5;
+
+    //Interval values for Stats
+    const INTERVAL_365_DAYS = 10;
+    const INTERVAL_30_DAYS = 20;
+    const INTERVAL_7_DAYS = 30;
+    const INTERVAL_DAY = 40;
+    const INTERVAL_24_HOURS = 100;
+    const INTERVAL_12_HOURS = 110;
+    const INTERVAL_6_HOURS = 120;
     
     //Stores the api key
     private $token_key;
