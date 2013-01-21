@@ -158,10 +158,12 @@ class cloudflare_api {
      * $mode = 0 or 1. 0 means CloudFlare is off (grey cloud) for the new zone, while 1 means a happy orange cloud.
      */
     public function add_dns_record($zone, $type, $content, $name, $mode) {
-        $data['a']            = 'rec_set';
+        $data['a']            = 'rec_new';
         $data['type']         = ($type == 'A') ? 'A' : 'CNAME';
         $data['content']      = $content;
         $data['name']         = $name;
+        $data['z']	          = $zone;
+    	$data['ttl']          = '1';
         $data['service_mode'] = ($mode == true) ? 1 : 0;
         return $this->http_post($data);
     }
