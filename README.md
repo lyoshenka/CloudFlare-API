@@ -1,6 +1,6 @@
 #CloudFlare API PHP Binding
 
-A basic PHP binding for the [CloudFlare](http://www.cloudflare.com) Client and Host APIs.  Depending on the number of parameters passed, you can use either the host functions or the client functions.
+A basic PHP binding for the [CloudFlare](https://www.cloudflare.com/) Client and Host APIs.  Depending on the number of parameters passed, you can use either the host functions or the client functions.
 
 Returns a PHP object in all cases.
 
