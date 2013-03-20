@@ -79,6 +79,26 @@ class cloudflare_api {
     }
 	
     /**
+     * 3.2 - Retrieve A List Of The Domains
+     * This lists all domains in a CloudFlare account along with other data.
+     */
+    public function zone_load_multi() {
+        $data['a']        = "zone_load_multi";
+        return $this->http_post($data);
+    }
+	
+    /**
+     * 3.3 - Retrieve DNS Records Of A Given Domain
+     * This function retrieves the current stats and settings for a particular website.
+     * It can also be used to get currently settings of values such as the security level.
+     */
+    public function rec_load_all($domain) {
+        $data['a']        = "rec_load_all";
+        $data['z']        = $domain;
+        return $this->http_post($data);
+    }
+	
+    /**
      * 3.4 - Checks For Active Zones And Returns Their Corresponding Zids
      * This function retrieves domain statistics for a given time frame.
      */
@@ -98,9 +118,9 @@ class cloudflare_api {
      * $class = Restrict the result set to a given class. Currently r|s|t, for regular, crawler, threat resp.
      * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
      */
-    public function get_zone_ips($zoneid, $hours, $class, $geo = '0,0') {
+    public function zone_ips($domain, $hours, $class, $geo = '0,0') {
         $data['a']     = 'zone_ips';
-        $data['zid']   = $zoneid;
+        $data['z']     = $domain;
         $data['hours'] = $hours;
         $data['class'] = $class;
         $data['geo']   = $geo;
@@ -118,6 +138,16 @@ class cloudflare_api {
         return $this->http_post($data);
     }
 	
+    /**
+     * 3.7 - List All The Current Settings
+     * This function retrieves all the current settings for a given domain.
+     */
+    public function zone_settings($domain) {
+        $data['a']        = "zone_settings";
+        $data['z']        = $domain;
+        return $this->http_post($data);
+    }
+	
 	
     /**
      * CLIENT API
@@ -130,7 +160,7 @@ class cloudflare_api {
      * This function sets the Basic Security Level to I'M UNDER ATTACK! / HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
      * The switches are: (high|med|low|eoff).
      */
-    public function set_security_lvl($mode, $domain) {
+    public function sec_lvl($domain, $mode) {
         $data['a'] = "sec_lvl";
         $data['z'] = $domain;
         $data['v'] = $mode;
@@ -142,7 +172,7 @@ class cloudflare_api {
      * This function sets the Caching Level to Aggressive or Basic.
      * The switches are: (agg|basic).
      */
-    public function set_cache_lvl($mode, $domain) {
+    public function cache_lvl($domain, $mode) {
         $data['a'] = "cache_lvl";
         $data['z'] = $domain;
         $data['v'] = ($mode == 'agg') ? 'agg' : 'basic';
@@ -155,7 +185,7 @@ class cloudflare_api {
      * When Development Mode is on the cache is bypassed.
      * Development mode remains on for 3 hours or until when it is toggled back off.
      */
-    public function devmode($mode, $domain) {
+    public function devmode($domain, $mode) {
         $data['a'] = "devmode";
         $data['z'] = $domain;
         $data['v'] = ($mode == true) ? 1 : 0;
@@ -168,10 +198,21 @@ class cloudflare_api {
      * It may take up to 48 hours for the cache to rebuild and optimum performance to be achieved.
      * This function should be used sparingly.
      */
-    public function purge_cache($mode, $domain) {
+    public function fpurge_ts($domain) {
         $data['a'] = "fpurge_ts";
         $data['z'] = $domain;
-        $data['v'] = ($mode == true) ? 1 : 0;
+        $data['v'] = 1;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.5 - Purge A Single File In CloudFlare's Cache
+     * This function will purge a single file from CloudFlare's cache.
+     */
+    public function zone_file_purge($domain, $url) {
+        $data['a'] = "zone_file_purge";
+        $data['z'] = $domain;
+        $data['url'] = $url;
         return $this->http_post($data);
     }
     
@@ -189,30 +230,30 @@ class cloudflare_api {
     }
 	
     /**
-     * 4.7.1 - Whitelist IPs
+     * 4.7a - Whitelist IPs
      * You can add an IP address to your whitelist.
      */
-    public function whitelist_ip($ip) {
+    public function wl($ip) {
         $data['a']   = "wl";
         $data['key'] = $ip;
         return $this->http_post($data);
     }
     
     /**
-     * 4.7.2 - Blacklist IPs
+     * 4.7b - Blacklist IPs
      * You can add an IP address to your blacklist.
      */
-    public function blacklist_ip($ip) {
+    public function ban($ip) {
         $data['a']   = "ban";
         $data['key'] = $ip;
         return $this->http_post($data);
     }
 	
     /**
-     * 4.7.3 - Unlist IPs
+     * 4.7c - Unlist IPs
      * You can remove an IP address from the whitelist and the blacklist.
      */
-    public function unlist_ip($ip) {
+    public function nul($ip) {
         $data['a']   = "nul";
         $data['key'] = $ip;
         return $this->http_post($data);
@@ -222,10 +263,32 @@ class cloudflare_api {
      * 4.8 - Toggle IPv6 Support
      * This function toggles IPv6 support.
      */
-    public function toggle_ipv6($zone, $mode) {
+    public function ipv46($domain, $mode) {
         $data['a'] = 'ipv46';
-        $data['z'] = $zone;
+        $data['z'] = $domain;
         $data['v'] = ($mode == true) ? 1 : 0;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.9 - Set Rocket Loader
+     * This function changes Rocket Loader setting.
+     */
+    public function async($domain, $mode) {
+        $data['a'] = 'async';
+        $data['z'] = $domain;
+        $data['v'] = $mode;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.10 - Set Minification
+     * This function changes minification settings.
+     */
+    public function minify($domain, $mode) {
+        $data['a'] = 'minify';
+        $data['z'] = $domain;
+        $data['v'] = $mode;
         return $this->http_post($data);
     }
 	
@@ -238,45 +301,56 @@ class cloudflare_api {
 	
     /**
      * 5.1 - Add A New DNS Record
-     * This function creates a DNS record for a zone.
-     * $zone = zone
-     * $type = A|CNAME
-     * $id = The DNS Record ID (Available by using the rec_load_all call)
-     * $content = The value of the cname or IP address (the destination)
-     * $name = The name of the record you wish to create
-     * $mode = 0 or 1. 0 means CloudFlare is off (grey cloud) for the new zone, while 1 means a happy orange cloud
+     * This function creates a new DNS record for a zone.
+     * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function add_dns_record($zone, $type, $id, $content, $name, $mode) {
+    public function rec_new($domain, $type, $name, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
         $data['a']            = 'rec_new';
-        $data['type']         = ($type == 'A') ? 'A' : 'CNAME';
-        $data['id']           = $id;
-        $data['content']      = $content;
+        $data['z']	          = $domain;
+        $data['type']         = $type;
         $data['name']         = $name;
-        $data['z']	          = $zone;
-    	$data['ttl']          = '1';
-        $data['service_mode'] = ($mode == true) ? 1 : 0;
+        $data['content']      = $content;
+    	$data['ttl']          = $ttl;
+		if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+            $data['service_mode'] = ($mode == true) ? 1 : 0;
+		if ($type == 'MX' OR $type == 'SRV')
+            $data['piro'] = $piro;
+		if ($type == 'SRV') {
+            $data['service'] = $service;
+            $data['srvname'] = $srvname;
+            $data['protocol'] = $protocol;
+            $data['weight'] = $weight;
+            $data['port'] = $port;
+            $data['target'] = $target;
+		} 
         return $this->http_post($data);
     }
     
     /**
      * 5.2 - Edit A DNS Record
      * This function edits a DNS record for a zone.
-     * $zone = zone
-     * $type = A|CNAME
-     * $id = The DNS Record ID (Available by using the rec_load_all call)
-     * $content = The value of the cname or IP address (the destination)
-     * $name = The name of the record you wish to create
-     * $mode = 0 or 1. 0 means CloudFlare is off (grey cloud) for the new zone, while 1 means a happy orange cloud
+     * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function update_dns_record($zone, $type, $id, $content, $name, $mode) {
+    public function rec_edit($domain, $type, $id, $name, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
         $data['a']            = 'rec_edit';
-        $data['type']         = ($type == 'A') ? 'A' : 'CNAME';
-        $data['id']           = $id;
-        $data['content']      = $content;
+        $data['z']	          = $domain;
+        $data['type']         = $type;
+        $data['name']         = $id;
         $data['name']         = $name;
-        $data['z']	          = $zone;
-    	$data['ttl']          = '1';
-        $data['service_mode'] = ($mode == true) ? 1 : 0;
+        $data['content']      = $content;
+    	$data['ttl']          = $ttl;
+		if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+            $data['service_mode'] = ($mode == true) ? 1 : 0;
+		if ($type == 'MX' OR $type == 'SRV')
+            $data['piro'] = $piro;
+		if ($type == 'SRV') {
+            $data['service'] = $service;
+            $data['srvname'] = $srvname;
+            $data['protocol'] = $protocol;
+            $data['weight'] = $weight;
+            $data['port'] = $port;
+            $data['target'] = $target;
+		} 
         return $this->http_post($data);
     }
     
@@ -287,11 +361,10 @@ class cloudflare_api {
      * $id = The DNS Record ID (Available by using the rec_load_all call)
      * $type = A|CNAME
      */
-    public function delete_dns_record($zone, $id) {
+    public function delete_dns_record($domain, $id) {
         $data['a']            = 'rec_delete';
+        $data['z']	          = $domain;
         $data['id']           = $id;
-        $data['z']	          = $zone;
-        $data['service_mode'] = ($mode == true) ? 1 : 0;
         return $this->http_post($data);
     }
 	
@@ -356,6 +429,7 @@ class cloudflare_api {
     
 	
     /**
+     * GLOBAL API CALL
      * HTTP POST a specific task with the supplied data
      */
     private function http_post($data, $type = 'USER') {
