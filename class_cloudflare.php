@@ -1,6 +1,6 @@
 <?php
 /**
- * CloudFlare Client API
+ * CloudFlare API
  * 
  * 
  * @author AzzA <azza@broadcasthe.net>
@@ -59,8 +59,17 @@ class cloudflare_api {
         $this->token_key = $token_key;
     }
     
+	
     /**
-     * Stats
+     * CLIENT API
+     * Section 3
+     * Access
+     */
+	
+    /**
+     * 3.1 - Retrieve Domain Statistics For A Given Time Frame
+     * This function retrieves the current stats and settings for a particular website.
+     * It can also be used to get currently settings of values such as the security level.
      */
     public function stats($domain, $interval = 20) {
         $data['a']        = "stats";
@@ -68,139 +77,31 @@ class cloudflare_api {
         $data['interval'] = $interval;
         return $this->http_post($data);
     }
-    
-    
+	
     /**
-     * Developer Mode - This function allows you to toggle Development Mode on or off for a particular domain. 
-     * When Development Mode is on the cache is bypassed. Development mode remains on for 3 hours or 
-     * until when it is toggled back off.
+     * 3.2 - Retrieve A List Of The Domains
+     * This lists all domains in a CloudFlare account along with other data.
      */
-    public function devmode($mode, $domain) {
-        $data['a'] = "devmode";
-        $data['z'] = $domain;
-        $data['v'] = ($mode == true) ? 1 : 0;
+    public function zone_load_multi() {
+        $data['a']        = "zone_load_multi";
         return $this->http_post($data);
     }
-    
+	
     /**
-     * Purge Cache - This function will purge CloudFlare of any cached files. It may take up to 48 hours for
-     * the cache to rebuild and optimum performance to be achieved so this function should be used sparingly.
+     * 3.3 - Retrieve DNS Records Of A Given Domain
+     * This function retrieves the current stats and settings for a particular website.
+     * It can also be used to get currently settings of values such as the security level.
      */
-    public function purge_cache($mode, $domain) {
-        $data['a'] = "fpurge_ts";
-        $data['z'] = $domain;
-        $data['v'] = ($mode == true) ? 1 : 0;
+    public function rec_load_all($domain) {
+        $data['a']        = "rec_load_all";
+        $data['z']        = $domain;
         return $this->http_post($data);
     }
-    
+	
     /**
-     * You can add an IP address to your whitelist.
+     * 3.4 - Checks For Active Zones And Returns Their Corresponding Zids
+     * This function retrieves domain statistics for a given time frame.
      */
-    public function whitelist_ip($ip) {
-        $data['a']   = "wl";
-        $data['key'] = $ip;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * You can add an IP address to your blacklist.
-     */
-    public function blacklist_ip($ip) {
-        $data['a']   = "ban";
-        $data['key'] = $ip;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Set Cache Level - This function sets the Caching Level to Aggressive or Basic. (agg|basic)
-     */
-    public function set_cache_lvl($mode, $domain) {
-        $data['a'] = "cache_lvl";
-        $data['z'] = $domain;
-        $data['v'] = ($mode == 'agg') ? 'agg' : 'basic';
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Set Security Level - This function sets the Basic Security Level to HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
-     * (high|med|low|eoff)
-     */
-    public function set_security_lvl($mode, $domain) {
-        $data['a'] = "sec_lvl";
-        $data['z'] = $domain;
-        $data['v'] = $mode;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Pull recent IPs hitting your site
-     * Returns a list of IP addresses which hit your site classified by type.
-     * $zoneid = ID of the zone you would like to check. 
-     * $hours = Number of hours to go back. Default is 24, max is 48.
-     * $class = Restrict the result set to a given class. Currently r|s|t, for regular, crawler, threat resp.
-     * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
-     */
-    public function get_zone_ips($zoneid, $hours, $class, $geo = '0,0') {
-        $data['a']     = 'zone_ips';
-        $data['zid']   = $zoneid;
-        $data['hours'] = $hours;
-        $data['class'] = $class;
-        $data['geo']   = $geo;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Create a new DNS record - Creates a new DNS record for your site. This can be either a CNAME or A record.
-     * $zone = zone
-     * $type = A|CNAME
-     * $content = The value of the cname or IP address (the destination).
-     * $name = The name of the record you wish to create.
-     * $mode = 0 or 1. 0 means CloudFlare is off (grey cloud) for the new zone, while 1 means a happy orange cloud.
-     */
-    public function add_dns_record($zone, $type, $content, $name, $mode) {
-        $data['a']            = 'rec_new';
-        $data['type']         = ($type == 'A') ? 'A' : 'CNAME';
-        $data['content']      = $content;
-        $data['name']         = $name;
-        $data['z']	          = $zone;
-    	$data['ttl']          = '1';
-        $data['service_mode'] = ($mode == true) ? 1 : 0;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Update an existing DNS record - Update a DNS record for your site. This needs to be an A record.
-     * $ip = The value of the IP address (the destination).
-     * $hosts = The name of the record you wish to create.
-     */
-    public function update_dns_record($ip, $hosts) {
-        $data['a']     = "DIUP";
-        $data['ip']    = $ip;
-        $data['hosts'] = $hosts;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Toggle IPv6 support for your site - Toggles ipv6 support for a site.
-     */
-    public function toggle_ipv6($zone, $mode) {
-        $data['a'] = 'ipv46';
-        $data['z'] = $zone;
-        $data['v'] = ($mode == true) ? 1 : 0;
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Update the snapshot of your site for CloudFlare's challenge page
-     * Tells CloudFlare to take a new image of your site.
-     * Note that this call is rate limited to once per zone per day. Also the new image may take up to 1 hour to appear.
-     */
-    public function update_image($zoneid) {
-        $data['a']   = 'zone_grab';
-        $data['zid'] = $zoneid;
-        return $this->http_post($data);
-    }
-    
     public function zone_check($zones) {
         if (is_array($zones))
             $zones = implode(",", $zones);
@@ -208,34 +109,271 @@ class cloudflare_api {
         $data['zones'] = $zones;
         return $this->http_post($data);
     }
-
-    public function zone_init($zone) {
-        $data['a']    = 'zone_init';
-        $data['z']    = $zone;
+	
+    /**
+     * 3.5 - Pull Recent IPs Visiting Your Site
+     * This function returns a list of IP address which hit your site classified by type.
+     * $zoneid = ID of the zone you would like to check. 
+     * $hours = Number of hours to go back. Default is 24, max is 48.
+     * $class = Restrict the result set to a given class. Currently r|s|t, for regular, crawler, threat resp.
+     * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
+     */
+    public function zone_ips($domain, $hours, $class, $geo = '0,0') {
+        $data['a']     = 'zone_ips';
+        $data['z']     = $domain;
+        $data['hours'] = $hours;
+        $data['class'] = $class;
+        $data['geo']   = $geo;
         return $this->http_post($data);
     }
-    
-    public function del_dns($zone, $name) {
-        $data['a']    = 'rec_del';
-        $data['zone'] = $zone;
-        $data['name'] = $name;
-        return $this->http_post($data);
-    }
-    
-    public function update_dns($host, $ip) {
-        $data['a']     = 'DIUP';
-        $data['ip']    = $ip;
-        $data['hosts'] = $host;
-        return $this->http_post($data);
-    }
-    
+	
+    /**
+     * 3.6 - Check The Threat Score For A Given IP
+     * This function retrieves the current threat score for a given IP.
+     * Note that scores are on a logarithmic scale, where a higher score indicates a higher threat.
+     */
     public function threat_score($ip) {
         $data['a']  = 'ip_lkup';
         $data['ip'] = $ip;
         return $this->http_post($data);
     }
+	
+    /**
+     * 3.7 - List All The Current Settings
+     * This function retrieves all the current settings for a given domain.
+     */
+    public function zone_settings($domain) {
+        $data['a']        = "zone_settings";
+        $data['z']        = $domain;
+        return $this->http_post($data);
+    }
+	
+	
+    /**
+     * CLIENT API
+     * Section 4
+     * Modify
+     */
     
-    // HOST SECTION
+    /**
+     * 4.1 - Set The Security Level
+     * This function sets the Basic Security Level to I'M UNDER ATTACK! / HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
+     * The switches are: (high|med|low|eoff).
+     */
+    public function sec_lvl($domain, $mode) {
+        $data['a'] = "sec_lvl";
+        $data['z'] = $domain;
+        $data['v'] = $mode;
+        return $this->http_post($data);
+    }
+	
+    /**
+     * 4.2 - Set The Cache Level
+     * This function sets the Caching Level to Aggressive or Basic.
+     * The switches are: (agg|basic).
+     */
+    public function cache_lvl($domain, $mode) {
+        $data['a'] = "cache_lvl";
+        $data['z'] = $domain;
+        $data['v'] = ($mode == 'agg') ? 'agg' : 'basic';
+        return $this->http_post($data);
+    }
+	
+    /**
+     * 4.3 - Toggling Development Mode
+     * This function allows you to toggle Development Mode on or off for a particular domain.
+     * When Development Mode is on the cache is bypassed.
+     * Development mode remains on for 3 hours or until when it is toggled back off.
+     */
+    public function devmode($domain, $mode) {
+        $data['a'] = "devmode";
+        $data['z'] = $domain;
+        $data['v'] = ($mode == true) ? 1 : 0;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.4 - Clear CloudFlare's Cache
+     * This function will purge CloudFlare of any cached files.
+     * It may take up to 48 hours for the cache to rebuild and optimum performance to be achieved.
+     * This function should be used sparingly.
+     */
+    public function fpurge_ts($domain) {
+        $data['a'] = "fpurge_ts";
+        $data['z'] = $domain;
+        $data['v'] = 1;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.5 - Purge A Single File In CloudFlare's Cache
+     * This function will purge a single file from CloudFlare's cache.
+     */
+    public function zone_file_purge($domain, $url) {
+        $data['a'] = "zone_file_purge";
+        $data['z'] = $domain;
+        $data['url'] = $url;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.6 - Update The Snapshot Of Your Site
+     * This snapshot is used on CloudFlare's challenge page
+     * This function tells CloudFlare to take a new image of your site.
+     * Note that this call is rate limited to once per zone per day.
+     * Also the new image may take up to 1 hour to appear.
+     */
+    public function update_image($zoneid) {
+        $data['a']   = 'zone_grab';
+        $data['zid'] = $zoneid;
+        return $this->http_post($data);
+    }
+	
+    /**
+     * 4.7a - Whitelist IPs
+     * You can add an IP address to your whitelist.
+     */
+    public function wl($ip) {
+        $data['a']   = "wl";
+        $data['key'] = $ip;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.7b - Blacklist IPs
+     * You can add an IP address to your blacklist.
+     */
+    public function ban($ip) {
+        $data['a']   = "ban";
+        $data['key'] = $ip;
+        return $this->http_post($data);
+    }
+	
+    /**
+     * 4.7c - Unlist IPs
+     * You can remove an IP address from the whitelist and the blacklist.
+     */
+    public function nul($ip) {
+        $data['a']   = "nul";
+        $data['key'] = $ip;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.8 - Toggle IPv6 Support
+     * This function toggles IPv6 support.
+     */
+    public function ipv46($domain, $mode) {
+        $data['a'] = 'ipv46';
+        $data['z'] = $domain;
+        $data['v'] = ($mode == true) ? 1 : 0;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.9 - Set Rocket Loader
+     * This function changes Rocket Loader setting.
+     */
+    public function async($domain, $mode) {
+        $data['a'] = 'async';
+        $data['z'] = $domain;
+        $data['v'] = $mode;
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 4.10 - Set Minification
+     * This function changes minification settings.
+     */
+    public function minify($domain, $mode) {
+        $data['a'] = 'minify';
+        $data['z'] = $domain;
+        $data['v'] = $mode;
+        return $this->http_post($data);
+    }
+	
+	
+    /**
+     * CLIENT API
+     * Section 5
+     * DNS Record Management
+     */
+	
+    /**
+     * 5.1 - Add A New DNS Record
+     * This function creates a new DNS record for a zone.
+     * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
+     */
+    public function rec_new($domain, $type, $name, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+        $data['a']            = 'rec_new';
+        $data['z']	          = $domain;
+        $data['type']         = $type;
+        $data['name']         = $name;
+        $data['content']      = $content;
+    	$data['ttl']          = $ttl;
+		if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+            $data['service_mode'] = ($mode == true) ? 1 : 0;
+		if ($type == 'MX' OR $type == 'SRV')
+            $data['piro'] = $piro;
+		if ($type == 'SRV') {
+            $data['service'] = $service;
+            $data['srvname'] = $srvname;
+            $data['protocol'] = $protocol;
+            $data['weight'] = $weight;
+            $data['port'] = $port;
+            $data['target'] = $target;
+		} 
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 5.2 - Edit A DNS Record
+     * This function edits a DNS record for a zone.
+     * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
+     */
+    public function rec_edit($domain, $type, $id, $name, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+        $data['a']            = 'rec_edit';
+        $data['z']	          = $domain;
+        $data['type']         = $type;
+        $data['name']         = $id;
+        $data['name']         = $name;
+        $data['content']      = $content;
+    	$data['ttl']          = $ttl;
+		if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+            $data['service_mode'] = ($mode == true) ? 1 : 0;
+		if ($type == 'MX' OR $type == 'SRV')
+            $data['piro'] = $piro;
+		if ($type == 'SRV') {
+            $data['service'] = $service;
+            $data['srvname'] = $srvname;
+            $data['protocol'] = $protocol;
+            $data['weight'] = $weight;
+            $data['port'] = $port;
+            $data['target'] = $target;
+		} 
+        return $this->http_post($data);
+    }
+    
+    /**
+     * 5.3 - Delete A DNS Record
+     * This function deletes a DNS record for a zone.
+     * $zone = zone
+     * $id = The DNS Record ID (Available by using the rec_load_all call)
+     * $type = A|CNAME
+     */
+    public function delete_dns_record($domain, $id) {
+        $data['a']            = 'rec_delete';
+        $data['z']	          = $domain;
+        $data['id']           = $id;
+        return $this->http_post($data);
+    }
+	
+	
+    /**
+     * HOST API
+     * Section 3
+     * Specific Host Provider Operations
+     */
     
     public function user_create($email, $password, $username = '', $id = '') {
         $data['act']                 = 'user_create';
@@ -289,7 +427,9 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
     
+	
     /**
+     * GLOBAL API CALL
      * HTTP POST a specific task with the supplied data
      */
     private function http_post($data, $type = 'USER') {
