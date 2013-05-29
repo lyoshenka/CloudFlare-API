@@ -2,7 +2,6 @@
 /**
  * CloudFlare API
  *
- *
  * @author AzzA <azza@broadcasthe.net>
  * @copyright omgwtfhax inc. 2011
  * @version 1.0
@@ -60,7 +59,6 @@ class Cloudflare {
         $this->token_key = $token_key;
     }
 
-
     /**
      * CLIENT API
      * Section 3
@@ -104,8 +102,9 @@ class Cloudflare {
      * This function retrieves domain statistics for a given time frame.
      */
     public function zone_check($zones) {
-        if (is_array($zones))
+        if (is_array($zones)) {
             $zones = implode(',', $zones);
+        }
         $data['a']     = 'zone_check';
         $data['zones'] = $zones;
         return $this->http_post($data);
@@ -144,11 +143,10 @@ class Cloudflare {
      * This function retrieves all the current settings for a given domain.
      */
     public function zone_settings($domain) {
-        $data['a']        = 'zone_settings';
-        $data['z']        = $domain;
+        $data['a'] = 'zone_settings';
+        $data['z'] = $domain;
         return $this->http_post($data);
     }
-
 
     /**
      * CLIENT API
@@ -293,7 +291,6 @@ class Cloudflare {
         return $this->http_post($data);
     }
 
-
     /**
      * CLIENT API
      * Section 5
@@ -402,13 +399,12 @@ class Cloudflare {
      * $id = The DNS Record ID (Available by using the rec_load_all call)
      * $type = A|CNAME
      */
-    public function delete_dns_record($domain, $id) {
+    public function rec_delete($domain, $id) {
         $data['a']            = 'rec_delete';
         $data['z']            = $domain;
         $data['id']           = $id;
         return $this->http_post($data);
     }
-
 
     /**
      * HOST API
@@ -422,18 +418,19 @@ class Cloudflare {
         $data['cloudflare_pass']     = $password;
         $data['cloudflare_username'] = $username;
         $data['unique_id']           = $id;
-        return $this->http_post($data, 'HOST');
+        return $this->http_post($data, 'host');
     }
 
     public function zone_set($key, $zone, $resolve_to, $subdomains) {
-        if (is_array($subdomains))
+        if (is_array($subdomains)) {
             $subdomains = implode(',', $subdomains);
+        }
         $data['act']        = 'zone_set';
         $data['user_key']   = $key;
         $data['zone_name']  = $zone;
         $data['resolve_to'] = $resolve_to;
         $data['subdomains'] = $subdomains;
-        return $this->http_post($data, 'HOST');
+        return $this->http_post($data, 'host');
     }
 
     public function user_lookup($email, $isID = false) {
@@ -443,7 +440,7 @@ class Cloudflare {
         } else {
             $data['cloudflare_email'] = $email;
         }
-        return $this->http_post($data, 'HOST');
+        return $this->http_post($data, 'host');
     }
 
     public function user_auth($email, $password, $id = '') {
@@ -451,21 +448,21 @@ class Cloudflare {
         $data['cloudflare_email'] = $email;
         $data['cloudflare_pass']  = $password;
         $data['unique_id']        = $id;
-        return $this->http_post($data, 'HOST');
+        return $this->http_post($data, 'host');
     }
 
     public function zone_lookup($zone, $user_key) {
         $data['act']       = 'zone_lookup';
         $data['user_key']  = $user_key;
         $data['zone_name'] = $zone;
-        return $this->http_post($data, 'HOST');
+        return $this->http_post($data, 'host');
     }
 
     public function zone_delete($zone, $user_key) {
         $data['act']       = 'zone_delete';
         $data['user_key']  = $user_key;
         $data['zone_name'] = $zone;
-        return $this->http_post($data, 'HOST');
+        return $this->http_post($data, 'host');
     }
 
     /**
@@ -474,11 +471,11 @@ class Cloudflare {
      */
     private function http_post($data, $type = 'user') {
         switch ($type) {
-            case 'USER':
+            case 'user':
                 $data['u']   = $this->email;
                 $data['tkn'] = $this->token_key;
                 break;
-            case 'HOST':
+            case 'host':
                 $data['host_key'] = $this->host_key;
                 break;
         }
