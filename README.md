@@ -12,7 +12,7 @@ A PHP object is returned in all cases.
 
 ###Usage
 
-    $cf = new cloudflare_api("me@example.com", "799df833d7a42adf3b8e2fd113c7260b955b8e95ac42c");
+    $cf = new Cloudflare("me@example.com", "799df833d7a42adf3b8e2fd113c7260b955b8e95ac42c");
     $response = $cf->stats("example.com", INTERVAL_30_DAYS);
     
 	
@@ -20,5 +20,5 @@ A PHP object is returned in all cases.
 
 ###Usage
 
-    $cf = new cloudflare_api("8afbe6dea02407989af4dd4c97bb6e25");
+    $cf = new Cloudflare("8afbe6dea02407989af4dd4c97bb6e25");
     $response = $cf->user_create("newuser@example.com", "newpassword", "", "someuniqueid");
