@@ -497,7 +497,7 @@ class Cloudflare {
                 'error' => $error
             );
         } else {
-            return json_decode($http_result);
+            return json_decode($http_result, true);
         }
     }
 }
